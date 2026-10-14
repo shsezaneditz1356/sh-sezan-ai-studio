@@ -1,0 +1,6 @@
+{
+  "appId": "com.shsezan.aipromptstudio",
+  "appName": "SH SEZAN Edit'z",
+  "webDir": "public",
+  "server": { "androidScheme": "https" }
+}
