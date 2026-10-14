@@ -1,0 +1,10 @@
+{
+  "name": "SH SEZAN Edit'z AI Prompt Studio",
+  "short_name": "SH SEZAN AI",
+  "description": "AI image prompt generator and reference-photo analyzer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0b0d",
+  "theme_color": "#0b0b0d",
+  "icons": []
+}
