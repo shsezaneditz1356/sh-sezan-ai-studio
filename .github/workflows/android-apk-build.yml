@@ -1,0 +1,61 @@
+name: Build SH SEZAN Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "sh-sezan-ai-studio-source.zip"
+      - ".github/workflows/android-apk-build.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Extract project source
+        run: |
+          unzip -o sh-sezan-ai-studio-source.zip -d source
+          echo "PROJECT_DIR=$(find source -mindepth 1 -maxdepth 1 -type d | head -n 1)" >> "$GITHUB_ENV"
+
+      - name: Configure deployed backend URL (optional)
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+        run: |
+          if [ -n "$BACKEND_URL" ]; then
+            node -e "const fs=require('fs'); const p=process.env.PROJECT_DIR+'/public/config.js'; fs.writeFileSync(p, \"window.SH_SEZAN_API_BASE_URL = '\" + process.env.BACKEND_URL.replace(/\/$/, '') + \"';\\n\");"
+          else
+            echo "BACKEND_URL secret is not set. The app may not be able to use AI analysis until the backend URL is configured."
+          fi
+
+      - name: Install dependencies and prepare Android
+        run: |
+          cd "$PROJECT_DIR"
+          npm install
+          npx cap add android
+          npx cap sync android
+
+      - name: Build debug APK
+        run: |
+          cd "$PROJECT_DIR/android"
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SH-SEZAN-Editz-debug-APK
+          path: "${{ env.PROJECT_DIR }}/android/app/build/outputs/apk/debug/app-debug.apk"
+          if-no-files-found: error
