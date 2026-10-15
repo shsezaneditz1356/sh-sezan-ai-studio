@@ -26,8 +26,7 @@ app.use(helmet({
     }
   }
 }));
-app.use(express.json({ limit: '22mb' }));
-app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+app.use(express.static(__dirname, { extensions: ['html'] }));
 
 const analyzeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
